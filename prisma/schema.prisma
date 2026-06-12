@@ -1,0 +1,222 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum FreshnessStatus {
+  CURRENT
+  RECENTLY_VERIFIED
+  NEEDS_REVIEW
+  ESTIMATED
+}
+
+enum AnalyticsEventType {
+  search_medicine
+  view_medicine
+  compare_medicine
+  view_plan
+  click_affiliate
+  apply_plan
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String?  @unique
+  createdAt DateTime @default(now())
+}
+
+model Medicine {
+  id                   String              @id @default(cuid())
+  slug                 String              @unique
+  brandName            String
+  genericName          String
+  drugClass            String
+  manufacturer         String?
+  genericAvailable     Boolean             @default(false)
+  approximateCashPrice Decimal?
+  confidence           String              @default("Medium")
+  summary              String
+  safetyNote           String
+  lastUpdated          DateTime
+  freshness            FreshnessStatus
+  ingredients          MedicineIngredient[]
+  forms                DrugForm[]
+  genericMappings      GenericMapping[]     @relation("BrandGeneric")
+  genericFor           GenericMapping[]     @relation("GenericBrand")
+  substitutesFrom      Substitute[]         @relation("SubstituteFrom")
+  substitutesTo        Substitute[]         @relation("SubstituteTo")
+  comparisonsA         DrugComparison[]     @relation("ComparisonA")
+  comparisonsB         DrugComparison[]     @relation("ComparisonB")
+  formularyRules       FormularyRule[]
+  sourceReferences     SourceReference[]
+  freshnessMetadata    FreshnessMetadata?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+}
+
+model Ingredient {
+  id        String               @id @default(cuid())
+  name      String               @unique
+  medicines MedicineIngredient[]
+}
+
+model MedicineIngredient {
+  medicineId   String
+  ingredientId String
+  medicine     Medicine   @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  @@id([medicineId, ingredientId])
+}
+
+model DrugForm {
+  id         String   @id @default(cuid())
+  medicineId String
+  form       String
+  strength   String
+  route      String   @default("oral")
+  medicine   Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+}
+
+model GenericMapping {
+  id          String   @id @default(cuid())
+  brandId     String
+  genericId   String
+  equivalence String
+  notes       String?
+  brand       Medicine @relation("BrandGeneric", fields: [brandId], references: [id])
+  generic     Medicine @relation("GenericBrand", fields: [genericId], references: [id])
+}
+
+model Substitute {
+  id         String   @id @default(cuid())
+  fromId     String
+  toId       String
+  type       String
+  caveat     String
+  from       Medicine @relation("SubstituteFrom", fields: [fromId], references: [id])
+  to         Medicine @relation("SubstituteTo", fields: [toId], references: [id])
+}
+
+model DrugComparison {
+  id          String   @id @default(cuid())
+  medicineAId String
+  medicineBId String
+  slug        String   @unique
+  summary     String
+  medicineA   Medicine @relation("ComparisonA", fields: [medicineAId], references: [id])
+  medicineB   Medicine @relation("ComparisonB", fields: [medicineBId], references: [id])
+}
+
+model InsurancePlan {
+  id             String          @id @default(cuid())
+  slug           String          @unique
+  name           String
+  provider       String
+  planType       String
+  monthlyPremium Decimal
+  deductible     Decimal
+  oopMax         Decimal
+  rxDeductible   Decimal
+  networkNotes   String
+  sponsored      Boolean         @default(false)
+  benefits       PlanBenefit[]
+  formularyRules FormularyRule[]
+  affiliateLinks AffiliateLink[]
+  sourceReferences SourceReference[]
+  lastUpdated    DateTime
+}
+
+model PlanBenefit {
+  id     String @id @default(cuid())
+  planId String
+  label  String
+  value  String
+  plan   InsurancePlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+}
+
+model FormularyRule {
+  id           String   @id @default(cuid())
+  planId       String
+  medicineId   String
+  tier         String
+  copay        Decimal?
+  coinsurance  Decimal?
+  deductibleApplies Boolean @default(false)
+  priorAuthorization Boolean @default(false)
+  stepTherapy  Boolean @default(false)
+  covered      Boolean @default(true)
+  plan         InsurancePlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  medicine     Medicine      @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+}
+
+model CoverageMatch {
+  id         String   @id @default(cuid())
+  planSlug   String
+  medicineSlug String
+  confidence String
+  explanation String
+  createdAt  DateTime @default(now())
+}
+
+model Pharmacy {
+  id        String @id @default(cuid())
+  name      String
+  market    String
+  affiliateLinks AffiliateLink[]
+}
+
+model AffiliateLink {
+  id          String   @id @default(cuid())
+  planId      String?
+  pharmacyId  String?
+  url         String
+  label       String
+  sponsored   Boolean  @default(false)
+  plan        InsurancePlan? @relation(fields: [planId], references: [id])
+  pharmacy    Pharmacy?      @relation(fields: [pharmacyId], references: [id])
+}
+
+model AnalyticsEvent {
+  id         String             @id @default(cuid())
+  event      AnalyticsEventType
+  entitySlug String?
+  metadata   Json?
+  createdAt  DateTime           @default(now())
+}
+
+model ContentPage {
+  id          String @id @default(cuid())
+  slug        String @unique
+  title       String
+  description String
+  body        String
+  pageType    String
+  publishedAt DateTime?
+}
+
+model SourceReference {
+  id         String   @id @default(cuid())
+  label      String
+  url        String
+  license    String?
+  retrievedAt DateTime
+  medicineId String?
+  planId     String?
+  medicine   Medicine?      @relation(fields: [medicineId], references: [id])
+  plan       InsurancePlan? @relation(fields: [planId], references: [id])
+}
+
+model FreshnessMetadata {
+  id          String   @id @default(cuid())
+  medicineId  String   @unique
+  status      FreshnessStatus
+  checkedAt   DateTime
+  staleAfter  DateTime
+  unavailableFields String[]
+  estimatedFields   String[]
+  medicine    Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+}

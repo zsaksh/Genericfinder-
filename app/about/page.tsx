@@ -1,0 +1,3 @@
+import { siteMetadata } from "@/lib/seo";
+export const metadata = siteMetadata({ title: "About GenericFinder", description: "A medicine and health insurance comparison platform focused on clarity, safety, and savings.", path: "/about" });
+export default function AboutPage() { return <section className="container-pad py-12"><h1 className="font-serif text-5xl font-semibold">About GenericFinder</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-graphite">GenericFinder is built to make prescription affordability decisions clearer by connecting medicine equivalents, pharmacy estimates, formulary rules, and insurance plan comparisons in one transparent interface.</p></section>; }

@@ -1,0 +1,180 @@
+import type { InsurancePlan, MedicineRecord } from "@/lib/types";
+
+export const medicines: MedicineRecord[] = [
+  {
+    slug: "lipitor",
+    brandName: "Lipitor",
+    genericName: "atorvastatin",
+    activeIngredients: ["atorvastatin calcium"],
+    drugClass: "HMG-CoA reductase inhibitor (statin)",
+    strengths: ["10 mg", "20 mg", "40 mg", "80 mg"],
+    dosageForms: ["tablet"],
+    manufacturer: "Viatris / legacy Pfizer brand",
+    genericAvailable: true,
+    substituteSlugs: ["crestor", "zocor"],
+    sameIngredientSlugs: ["atorvastatin"],
+    therapeuticAlternativeSlugs: ["crestor", "zocor"],
+    approximateCashPrice: 14,
+    sourceLabel: "FDA Drugs@FDA and openFDA labeling normalized demo record",
+    sourceUrl: "https://www.accessdata.fda.gov/scripts/cder/daf/",
+    lastUpdated: "2026-05-30",
+    freshness: "Recently verified",
+    confidence: "Medium",
+    summary: "Lipitor is a brand medicine whose generic equivalent is atorvastatin. Statins are commonly used in cholesterol treatment plans under clinician supervision.",
+    safetyNote: "Do not switch statins or doses without a prescriber or pharmacist; liver history, pregnancy status, interacting medicines, and muscle symptoms can matter.",
+    faqs: [
+      { question: "Is there a generic for Lipitor?", answer: "Yes. Atorvastatin is the generic version with the same active ingredient when matched by strength and dosage form." },
+      { question: "Are other statins interchangeable?", answer: "They may be therapeutic alternatives, but they are not automatically equivalent for every person or dose." }
+    ]
+  },
+  {
+    slug: "atorvastatin",
+    brandName: "Atorvastatin",
+    genericName: "atorvastatin",
+    activeIngredients: ["atorvastatin calcium"],
+    drugClass: "HMG-CoA reductase inhibitor (statin)",
+    strengths: ["10 mg", "20 mg", "40 mg", "80 mg"],
+    dosageForms: ["tablet"],
+    manufacturer: "Multiple manufacturers",
+    genericAvailable: true,
+    substituteSlugs: ["crestor", "zocor"],
+    sameIngredientSlugs: ["lipitor"],
+    therapeuticAlternativeSlugs: ["crestor", "zocor"],
+    approximateCashPrice: 9,
+    sourceLabel: "FDA Orange Book / Drugs@FDA normalized demo record",
+    sourceUrl: "https://www.fda.gov/drugs/drug-approvals-and-databases/orange-book-data-files",
+    lastUpdated: "2026-05-30",
+    freshness: "Recently verified",
+    confidence: "Medium",
+    summary: "Atorvastatin is the lower-cost generic commonly compared with Lipitor for cholesterol therapy.",
+    safetyNote: "Generic substitution should match active ingredient, strength, route, and dosage form; confirm with a licensed professional.",
+    faqs: [{ question: "Why do prices vary?", answer: "Cash prices vary by pharmacy contract, coupon network, quantity, and location." }]
+  },
+  {
+    slug: "crestor",
+    brandName: "Crestor",
+    genericName: "rosuvastatin",
+    activeIngredients: ["rosuvastatin calcium"],
+    drugClass: "HMG-CoA reductase inhibitor (statin)",
+    strengths: ["5 mg", "10 mg", "20 mg", "40 mg"],
+    dosageForms: ["tablet"],
+    manufacturer: "AstraZeneca brand / multiple generic manufacturers",
+    genericAvailable: true,
+    substituteSlugs: ["lipitor", "zocor"],
+    sameIngredientSlugs: [],
+    therapeuticAlternativeSlugs: ["lipitor", "atorvastatin", "zocor"],
+    approximateCashPrice: 12,
+    sourceLabel: "FDA labeling normalized demo record",
+    sourceUrl: "https://dailymed.nlm.nih.gov/dailymed/",
+    lastUpdated: "2026-05-28",
+    freshness: "Recently verified",
+    confidence: "Medium",
+    summary: "Crestor contains rosuvastatin, a different statin than atorvastatin, and may be considered a therapeutic alternative by clinicians.",
+    safetyNote: "Therapeutic alternatives require clinical review; equivalent milligram doses are not one-to-one across statins.",
+    faqs: [{ question: "Is Crestor the same as Lipitor?", answer: "No. They are in the same broad class but contain different active ingredients." }]
+  },
+  {
+    slug: "zocor",
+    brandName: "Zocor",
+    genericName: "simvastatin",
+    activeIngredients: ["simvastatin"],
+    drugClass: "HMG-CoA reductase inhibitor (statin)",
+    strengths: ["5 mg", "10 mg", "20 mg", "40 mg"],
+    dosageForms: ["tablet"],
+    manufacturer: "Merck brand / multiple generic manufacturers",
+    genericAvailable: true,
+    substituteSlugs: ["lipitor", "crestor"],
+    sameIngredientSlugs: [],
+    therapeuticAlternativeSlugs: ["lipitor", "atorvastatin", "crestor"],
+    approximateCashPrice: 8,
+    sourceLabel: "FDA labeling normalized demo record",
+    sourceUrl: "https://dailymed.nlm.nih.gov/dailymed/",
+    lastUpdated: "2026-05-24",
+    freshness: "Needs review",
+    confidence: "Medium",
+    summary: "Zocor contains simvastatin, a statin sometimes compared with atorvastatin and rosuvastatin for cholesterol treatment plans.",
+    safetyNote: "Simvastatin has important interaction and dose-limit considerations; consult a pharmacist or prescriber.",
+    faqs: [{ question: "Can I switch from Lipitor to Zocor?", answer: "Only a clinician can decide whether a different statin and dose is appropriate for your situation." }]
+  }
+];
+
+export const plans: InsurancePlan[] = [
+  {
+    slug: "clearpath-silver-rx",
+    name: "ClearPath Silver Rx",
+    provider: "ClearPath Health",
+    planType: "PPO",
+    monthlyPremium: 428,
+    deductible: 2100,
+    oopMax: 7800,
+    rxDeductible: 150,
+    networkNotes: "Broad preferred retail network; mail-order pharmacy available.",
+    prescriptionNotes: "Generic statins are modeled as Tier 1 with low copays after pharmacy deductible.",
+    sponsored: true,
+    affiliateUrl: "https://example.com/affiliate/clearpath-silver-rx",
+    trustBadges: ["Sponsored", "Rx-first filters", "Marketplace-style details"],
+    sourceLabel: "Demo adapter record patterned for CMS/Marketplace plan imports",
+    lastUpdated: "2026-06-01",
+    coveredMedicineSlugs: ["atorvastatin", "lipitor", "crestor", "zocor"],
+    formulary: {
+      atorvastatin: { tier: "Tier 1 preferred generic", copay: 5, covered: true },
+      lipitor: { tier: "Tier 3 preferred brand", copay: 45, restriction: "Prior authorization may apply", covered: true },
+      crestor: { tier: "Tier 2 generic/brand mix", copay: 18, covered: true },
+      zocor: { tier: "Tier 1 preferred generic", copay: 6, covered: true }
+    }
+  },
+  {
+    slug: "harbor-hsa-bronze",
+    name: "Harbor HSA Bronze",
+    provider: "Harbor Mutual",
+    planType: "HDHP",
+    monthlyPremium: 296,
+    deductible: 6900,
+    oopMax: 9100,
+    rxDeductible: 6900,
+    networkNotes: "Lower premium high-deductible plan; verify local clinicians and pharmacies.",
+    prescriptionNotes: "Members usually pay negotiated price until deductible, then coinsurance.",
+    sponsored: false,
+    affiliateUrl: "https://example.com/affiliate/harbor-hsa-bronze",
+    trustBadges: ["HSA eligible", "Lower premium"],
+    sourceLabel: "Demo adapter record patterned for Marketplace QHP imports",
+    lastUpdated: "2026-06-01",
+    coveredMedicineSlugs: ["atorvastatin", "crestor", "zocor"],
+    formulary: {
+      atorvastatin: { tier: "Deductible then generic coinsurance", copay: 11, covered: true },
+      lipitor: { tier: "Non-preferred brand", copay: 180, restriction: "Not preferred; exceptions process", covered: false },
+      crestor: { tier: "Deductible then preferred generic", copay: 14, covered: true },
+      zocor: { tier: "Deductible then preferred generic", copay: 10, covered: true }
+    }
+  },
+  {
+    slug: "everwell-gold-care",
+    name: "EverWell Gold Care",
+    provider: "EverWell Plans",
+    planType: "HMO",
+    monthlyPremium: 612,
+    deductible: 900,
+    oopMax: 5200,
+    rxDeductible: 0,
+    networkNotes: "Tight HMO network with strong primary care coordination.",
+    prescriptionNotes: "Predictable copays for chronic generics; referral rules may affect care access.",
+    sponsored: true,
+    affiliateUrl: "https://example.com/affiliate/everwell-gold-care",
+    trustBadges: ["Sponsored", "No Rx deductible", "Chronic-med friendly"],
+    sourceLabel: "Demo adapter record patterned for insurer formulary imports",
+    lastUpdated: "2026-06-02",
+    coveredMedicineSlugs: ["atorvastatin", "lipitor", "crestor", "zocor"],
+    formulary: {
+      atorvastatin: { tier: "Tier 1 generic", copay: 3, covered: true },
+      lipitor: { tier: "Tier 4 non-preferred brand", copay: 85, restriction: "Step therapy likely", covered: true },
+      crestor: { tier: "Tier 2 preferred", copay: 12, covered: true },
+      zocor: { tier: "Tier 1 generic", copay: 4, covered: true }
+    }
+  }
+];
+
+export const pharmacies = [
+  { name: "Northstar Pharmacy", type: "Retail", note: "Coupon-network estimate", prices: { atorvastatin: 9, lipitor: 119, crestor: 12, zocor: 8 } },
+  { name: "Civic Mail Pharmacy", type: "Mail", note: "90-day estimate available", prices: { atorvastatin: 22, lipitor: 288, crestor: 30, zocor: 18 } },
+  { name: "Market Basket Rx", type: "Retail", note: "Cash-pay estimate", prices: { atorvastatin: 14, lipitor: 132, crestor: 18, zocor: 11 } }
+] as const;
