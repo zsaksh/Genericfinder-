@@ -1,0 +1,3 @@
+import { siteMetadata } from "@/lib/seo";
+export const metadata = siteMetadata({ title: "Terms and medical disclaimer", description: "GenericFinder terms, affiliate disclosure, and medical disclaimer.", path: "/terms" });
+export default function TermsPage() { return <section className="container-pad py-12"><h1 className="font-serif text-5xl font-semibold">Terms & disclaimer</h1><p className="mt-5 max-w-3xl leading-7 text-graphite">GenericFinder provides informational comparison tools only. It is not medical advice, insurance advice, or a substitute for professional judgment. Affiliate relationships may influence compensation but should not change source labeling.</p></section>; }
