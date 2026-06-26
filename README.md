@@ -14,6 +14,7 @@ GenericFinder is a production-oriented Next.js App Router website for comparing 
 
 - Next.js App Router + TypeScript
 - Tailwind CSS + accessible component primitives
+- Biome for dependency-light linting/format checks
 - Prisma + PostgreSQL schema for production data modeling
 - Server-rendered pages, static params, ISR-style `revalidate`, sitemap, robots, canonical/OpenGraph/Twitter metadata, and FAQ JSON-LD
 - Server actions for search routing and plan lead capture
@@ -35,13 +36,13 @@ npm run db:seed
 npm run dev
 ```
 
-If a sandbox blocks package installation, continue source development without running install/typecheck. Vercel deployments with normal npm access should run the full build pipeline.
+If a sandbox blocks package installation, continue source development without running install/typecheck. Vercel deployments with normal npm access should run the full build pipeline. Dependency warnings from deprecated ESLint 8 transitive packages are avoided by using Biome instead of the legacy Next lint wrapper.
 
 ## Deployment
 
 1. Create a Vercel project.
 2. Add `DATABASE_URL`, `NEXT_PUBLIC_SITE_URL`, and affiliate/analytics environment variables.
-3. Run `npm run build` as the Vercel build command.
+3. Run `npm run build` as the Vercel build command. The build script creates safe local fallback values for build-time Prisma generation if Vercel environment variables are missing, but production deployments should still configure real `DATABASE_URL` and `NEXT_PUBLIC_SITE_URL` values.
 4. Run Prisma migrations against the production PostgreSQL database.
 5. Schedule ingestion refresh jobs to update normalized data, source references, and freshness metadata.
 
