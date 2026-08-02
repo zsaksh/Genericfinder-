@@ -1,66 +1,51 @@
-# Outcasters
+# GenericFinder
 
-Outcasters is a native Android, local-first academic AI companion. It is intentionally serverless: learning data, OCR text, imported documents, conversation history, and GGUF model files are designed to stay on the phone.
+GenericFinder is a production-oriented Next.js App Router website for comparing medicines, generic equivalents, substitutes, pharmacy cash prices, and health insurance prescription coverage with affiliate-ready plan flows.
 
-## What is included
+## Product surface
 
-- Kotlin + Jetpack Compose Android application.
-- Material 3 liquid-glass-inspired design system.
-- Four primary sections only: Home, Learn, Models, and Settings.
-- Ask/scan, chat, OCR preview, concept learning, language practice, interview prep, local model management, and privacy-first settings surfaces.
-- Clean backend boundaries for GGUF/llama.cpp inference, OCR cleanup, local retrieval, prompt construction, model catalog, and model switching.
-- GitHub Actions workflow that builds and uploads a debug APK artifact.
+- Search medicines by brand, generic, active ingredient, drug class, common misspelling, and mapped symptom category.
+- View SEO-first medicine pages with generic equivalence, substitutes, therapeutic alternatives, price tables, formulary guidance, FAQs, source labels, freshness labels, and medical safety disclaimers.
+- Compare insurance plans by premium, deductible, Rx deductible, metal level, service area, formulary tier, modeled copay, and cheaper covered alternatives.
+- Route affiliate clicks through an internal `/out/[slug]` endpoint for clean disclosure, logging, and future conversion tracking.
+- Maintain trust pages for methodology, sources, privacy, terms, and medical/affiliate disclaimers.
 
-## Product architecture
+## Technical stack
 
-The app keeps the experience calm and simple:
+- Next.js App Router + TypeScript
+- Tailwind CSS + accessible component primitives
+- Biome for dependency-light linting/format checks
+- Prisma + PostgreSQL schema for production data modeling
+- Server-rendered pages, static params, ISR-style `revalidate`, sitemap, robots, canonical/OpenGraph/Twitter metadata, and FAQ JSON-LD
+- Server actions for search routing and plan lead capture
+- API routes for search, coverage lookup, affiliate redirects, and analytics events
+- Adapter interfaces for official/licensed medicine, plan, formulary, and pharmacy-price feeds
 
-1. Home is the launcher for asking, scanning, learning, and continuing recent work.
-2. Learn contains Concept, Language, and Interview modes inside one segmented control.
-3. Models explains downloaded/imported GGUF files in plain English and makes the active model obvious.
-4. Settings groups AI behavior, privacy, performance, OCR, storage, appearance, and about.
+## Data policy
 
-## Local AI backend
+The checked-in records are small, labeled demo data. Production data should be imported from official or licensed sources such as FDA Drugs@FDA, FDA Orange Book, DailyMed SPL, RxNorm/RxNav, CMS Marketplace public-use files, insurer-published formularies, and licensed pharmacy price APIs. Do not infer clinical facts from unverified sources.
 
-`InferenceRuntime` is the replaceable runtime boundary for JNI-backed llama.cpp integration. It exposes:
-
-- `initialize(modelId)`
-- `generate(messages)` as a Kotlin `Flow<String>` of delta tokens only
-- `stop()`
-- `switchModel(modelId)`
-- `unload()`
-- `isReady()`
-
-The scaffold keeps one active model at a time and is structured so a real llama.cpp JNI bridge can replace the current local runtime without changing UI screens.
-
-## Model bundle
-
-The default catalog is phone-friendly:
-
-- Qwen2.5 0.5B as the balanced active model.
-- SmolLM2 360M as the weak-device fallback.
-- Phi-3.5 Mini as the stronger premium tier.
-
-## Build locally
-
-Use Java 17 or Java 21. Java 25 is not currently supported by the Kotlin/Gradle script tooling used by this project. This repository includes `.mise.toml` so local shells with mise can run Gradle under Java 21 instead of the global Java 25 runtime.
+## Local setup
 
 ```bash
-./scripts/build-apk.sh
+npm install
+cp .env.example .env
+npm run db:generate
+npm run db:push
+npm run db:seed
+npm run dev
 ```
 
-If you want to call Gradle directly in this container, use mise so Gradle launches on Java 21:
+If a sandbox blocks package installation, continue source development without running install/typecheck. Vercel deployments with normal npm access should run the full build pipeline. Dependency warnings from deprecated ESLint 8 transitive packages are avoided by using Biome instead of the legacy Next lint wrapper.
 
-```bash
-mise exec -- gradle :app:assembleDebug --no-daemon --stacktrace
-```
+## Deployment
 
-The APK is created under:
+1. Create a Vercel project.
+2. Add `DATABASE_URL`, `NEXT_PUBLIC_SITE_URL`, and affiliate/analytics environment variables.
+3. Run `npm run build` as the Vercel build command. The build script creates safe local fallback values for build-time Prisma generation if Vercel environment variables are missing, but production deployments should still configure real `DATABASE_URL` and `NEXT_PUBLIC_SITE_URL` values.
+4. Run Prisma migrations against the production PostgreSQL database.
+5. Schedule ingestion refresh jobs to update normalized data, source references, and freshness metadata.
 
-```text
-app/build/outputs/apk/debug/
-```
+## Safety and compliance
 
-## Build on GitHub
-
-The workflow at `.github/workflows/android-apk.yml` installs Temurin Java 21, prepares the Android SDK, installs Gradle 8.10.2, runs `./scripts/build-apk.sh`, and uploads the generated debug APK as the `outcasters-debug-apk` artifact. The default build is network-independent so it works in restricted sandboxes; `app/real-android.build.gradle.kts` preserves the full Android Gradle Plugin configuration for production environments with Google Maven access.
+GenericFinder is informational only and is not medical advice, insurance advice, or a replacement for a licensed clinician, pharmacist, broker, or insurer. All price and coverage data must be verified before a user acts. Sponsored and affiliate placements must remain clearly labeled.
