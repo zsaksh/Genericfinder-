@@ -1,37 +1,66 @@
-# GenericFinder
+# Outcasters
 
-GenericFinder is a production-oriented Next.js App Router website for comparing medicines, generic equivalents, pharmacy cash prices, and health insurance prescription coverage with affiliate-ready plan flows.
+Outcasters is a native Android, local-first academic AI companion. It is intentionally serverless: learning data, OCR text, imported documents, conversation history, and GGUF model files are designed to stay on the phone.
 
 ## What is included
 
-- Next.js App Router, TypeScript, Tailwind CSS, and accessible shadcn-style primitives.
-- SEO-first pages for medicines, generic finder pages, substitutes, drug comparisons, insurance plan pages, savings, sources, legal, sitemap, and robots.
-- Prisma PostgreSQL schema for users, medicines, ingredients, forms, generic mappings, substitutes, comparisons, plans, benefits, formulary rules, pharmacies, affiliates, analytics, content, sources, and freshness metadata.
-- Data adapter interfaces for swapping demo data with official or licensed drug, formulary, plan, and pharmacy feeds.
-- Analytics event hooks for `search_medicine`, `view_medicine`, `compare_medicine`, `view_plan`, `click_affiliate`, and `apply_plan`.
+- Kotlin + Jetpack Compose Android application.
+- Material 3 liquid-glass-inspired design system.
+- Four primary sections only: Home, Learn, Models, and Settings.
+- Ask/scan, chat, OCR preview, concept learning, language practice, interview prep, local model management, and privacy-first settings surfaces.
+- Clean backend boundaries for GGUF/llama.cpp inference, OCR cleanup, local retrieval, prompt construction, model catalog, and model switching.
+- GitHub Actions workflow that builds and uploads a debug APK artifact.
 
-## Data policy
+## Product architecture
 
-The checked-in data is labeled demo seed data and is intentionally small. Production data should be imported from official or licensed sources such as FDA Drugs@FDA, FDA Orange Book, DailyMed SPL, RxNorm/RxNav, public Marketplace/CMS plan metadata, insurer-published formularies, and licensed pharmacy price APIs. Do not infer clinical facts from unverified sources.
+The app keeps the experience calm and simple:
 
-## Local setup
+1. Home is the launcher for asking, scanning, learning, and continuing recent work.
+2. Learn contains Concept, Language, and Interview modes inside one segmented control.
+3. Models explains downloaded/imported GGUF files in plain English and makes the active model obvious.
+4. Settings groups AI behavior, privacy, performance, OCR, storage, appearance, and about.
+
+## Local AI backend
+
+`InferenceRuntime` is the replaceable runtime boundary for JNI-backed llama.cpp integration. It exposes:
+
+- `initialize(modelId)`
+- `generate(messages)` as a Kotlin `Flow<String>` of delta tokens only
+- `stop()`
+- `switchModel(modelId)`
+- `unload()`
+- `isReady()`
+
+The scaffold keeps one active model at a time and is structured so a real llama.cpp JNI bridge can replace the current local runtime without changing UI screens.
+
+## Model bundle
+
+The default catalog is phone-friendly:
+
+- Qwen2.5 0.5B as the balanced active model.
+- SmolLM2 360M as the weak-device fallback.
+- Phi-3.5 Mini as the stronger premium tier.
+
+## Build locally
+
+Use Java 17 or Java 21. Java 25 is not currently supported by the Kotlin/Gradle script tooling used by this project. This repository includes `.mise.toml` so local shells with mise can run Gradle under Java 21 instead of the global Java 25 runtime.
 
 ```bash
-npm install
-cp .env.example .env
-npm run db:generate
-npm run db:push
-npm run db:seed
-npm run dev
+./scripts/build-apk.sh
 ```
 
-## Deployment
+If you want to call Gradle directly in this container, use mise so Gradle launches on Java 21:
 
-1. Create a Vercel project.
-2. Add `DATABASE_URL`, `NEXT_PUBLIC_SITE_URL`, and affiliate/analytics environment variables.
-3. Run `npm run build` as the Vercel build command.
-4. Use a scheduled ingestion job to refresh normalized data and update freshness metadata.
+```bash
+mise exec -- gradle :app:assembleDebug --no-daemon --stacktrace
+```
 
-## Safety and compliance
+The APK is created under:
 
-GenericFinder is informational only and is not medical advice, insurance advice, or a replacement for a licensed clinician, pharmacist, broker, or insurer. All price and coverage data must be verified before a user acts.
+```text
+app/build/outputs/apk/debug/
+```
+
+## Build on GitHub
+
+The workflow at `.github/workflows/android-apk.yml` installs Temurin Java 21, prepares the Android SDK, installs Gradle 8.10.2, runs `./scripts/build-apk.sh`, and uploads the generated debug APK as the `outcasters-debug-apk` artifact. The default build is network-independent so it works in restricted sandboxes; `app/real-android.build.gradle.kts` preserves the full Android Gradle Plugin configuration for production environments with Google Maven access.
