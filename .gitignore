@@ -1,8 +1,21 @@
-node_modules
-.next
-.env
-.env.local
-.vercel
-dist
-coverage
+# Android / Gradle
+.gradle/
+build/
+**/build/
+local.properties
+*.iml
+
+# Android Studio
+.idea/
+
+# OS
 .DS_Store
+
+# Generated artifacts
+*.apk
+*.aab
+
+# Legacy web dependency directories
+node_modules/
+.next/
+.vercel/
