@@ -14,3 +14,8 @@ local.properties
 # Generated artifacts
 *.apk
 *.aab
+
+# Legacy web dependency directories
+node_modules/
+.next/
+.vercel/

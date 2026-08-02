@@ -16,4 +16,11 @@ if [[ -n "${JAVA_HOME:-}" ]]; then
 fi
 
 echo "Using Java: $(java -version 2>&1 | head -n 1)"
-gradle :app:assembleDebug --no-daemon --stacktrace
+
+GRADLE_BIN="${GRADLE_BIN:-gradle}"
+if [[ -x "$HOME/.local/share/mise/installs/gradle/8.14.4/gradle-8.14.4/bin/gradle" ]]; then
+  GRADLE_BIN="$HOME/.local/share/mise/installs/gradle/8.14.4/gradle-8.14.4/bin/gradle"
+fi
+
+echo "Using Gradle: $GRADLE_BIN"
+"$GRADLE_BIN" :app:assembleDebug --no-daemon --stacktrace
